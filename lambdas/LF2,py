@@ -1,0 +1,100 @@
+import json
+import boto3
+from botocore.vendored import requests
+#from elasticsearch import Elasticsearch, RequestsHttpConnection
+#from requests_aws4auth import AWS4Auth
+import os
+def elastic():
+    query = {
+        "query": {
+            "bool" : {
+                "must" : {
+                    "match_all" : {}
+                },
+                "filter" : {
+                    "geo_distance" : {
+                        "distance" : "15km",
+                        "location" : {
+                            "lat" : lat,
+                            "lon" : long
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+def sendEmail(dishRec,receipeRec,toBuyRec, emails):
+    print()
+    client = boto3.client('ses', region_name='us-east-1')
+    storeLink = 'https://storelocatorproject.s3.amazonaws.com/index.html'
+    response = client.send_email(
+    Destination={
+        'ToAddresses': ['vineetmilan@gmail.com']
+    },
+    Message={
+        'Body': {
+            'Text': {
+                'Charset': 'UTF-8',
+                'Data': 'Hello Vineet! \n\nBased on your available items and preferences, ' + dishRec + ' is an ideal recommendation! \n\nJust follow these simple steps - \n\n' + receipeRec + '\n\n However, based on the above recipe, you seem to be missing these ingredients - \n\n' + toBuyRec + '\n\n No worries! Use this link to access your closest stores - ' + storeLink + '. \n\nHappy shopping and cooking!\n\nTeam Fridge2Cook'
+            },
+        },
+        'Subject': {
+            'Charset': 'UTF-8',
+            'Data': 'Fridge2Cook - Receipe & Shopping recommendations!',
+        },
+    },
+    Source='vv913@nyu.edu')
+    print("Email sent successfully!!")
+    return
+
+def lambda_handler(event, context):
+    # TODO implement
+    #ADDING COGNITO CODE HERE
+    email = []
+    new_client = boto3.client('cognito-idp')
+    userEmail = new_client.admin_get_user(UserPoolId='us-east-1_nJdQZS1Kp', Username = 'vineet_v')
+    email.append(userEmail)
+    #print("answer = ", answer['UserAttributes'][2]['Value'])
+
+
+    sqs = boto3.client('sqs')
+    queue_url = 'https://sqs.us-east-1.amazonaws.com/382782476131/cloud-project-queue'
+    response = sqs.receive_message(
+        QueueUrl = queue_url,
+        AttributeNames = ['ALL'],
+        MaxNumberOfMessages = 1,
+        MessageAttributeNames = ['All'],
+        VisibilityTimeout = 0,
+        WaitTimeSeconds = 0
+        )
+
+
+    print(response)
+    if(response and 'Messages' in response):
+        availableItems = response['Messages'][0]['MessageAttributes']['availableItems']['StringValue']
+        choice = response['Messages'][0]['MessageAttributes']['choice']['StringValue']
+        itemToCook = response['Messages'][0]['MessageAttributes']['itemToCook']['StringValue']
+        itemsToBuy = response['Messages'][0]['MessageAttributes']['itemsToBuy']['StringValue']
+        latitude = response['Messages'][0]['MessageAttributes']['latitiude']['StringValue']
+        longitude = response['Messages'][0]['MessageAttributes']['longitude']['StringValue']
+        recipe = response['Messages'][0]['MessageAttributes']['receipe']['StringValue']
+
+    for each_message in response['Messages']:
+        message = each_message
+        receipt_handle = message['ReceiptHandle']
+        sqs.delete_message(
+                QueueUrl=queue_url,
+                ReceiptHandle=receipt_handle
+            )
+
+    sendEmail(itemToCook,recipe,itemsToBuy,email)
+
+    #for each in response['Messages']:
+    #    print("Each: ", each)
+    return {
+        'statusCode': 200,
+        'body': json.dumps('Hello from Lambda!')
+    }
