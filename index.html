@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0" />
+    <title>Dining Service ChatBot</title>
+    <style>
+
+        body {
+						background-image: url('loginPageProject.jpg');
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            padding-bottom: 50px;
+        }
+        #header{
+            width: 100%;
+            background-color: transparent;
+            color: white;
+            margin: 0 auto;
+            margin-bottom: 0px;
+            box-sizing: border-box;
+            padding: 0px;
+            
+        }
+        #headerText{
+            font-size: 1.5em;
+            text-align: center;
+        }
+        #body {
+            border-radius: 20px;
+            box-sizing: border-box;
+            background-color: transparent;
+            margin: auto;
+            width: 700px;
+            border: 3px solid green;
+            padding: 100px;
+        }
+        #search{
+            box-sizing: border-box;
+            padding: 20px;
+            position: relative;
+            float:left;
+            width: 50%;
+
+        }
+        #upload{
+            box-sizing: border-box;
+            padding: 20px;
+            position: relative;
+            float:right;
+						margin: auto;
+            width: 500px;
+        }
+        #result{
+            clear: both;
+            box-sizing: border-box;
+            padding: 5px;
+        }
+        #result-text{
+            display:none;
+        }
+
+    </style>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+    <script src="https://sdk.amazonaws.com/js/aws-sdk-2.418.0.min.js"></script>
+	<script type="text/javascript" src="lib/axios/dist/axios.standalone.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/rollups/hmac-sha256.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/rollups/sha256.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/components/hmac.js"></script>
+    <script type="text/javascript" src="lib/CryptoJS/components/enc-base64.js"></script>
+    <script type="text/javascript" src="lib/url-template/url-template.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/sigV4Client.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/apiGatewayClient.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/simpleHttpClient.js"></script>
+    <script type="text/javascript" src="lib/apiGatewayCore/utils.js"></script>
+	<script type="text/javascript" src="apigClient.js"></script>
+    <script class="jsbin" src="https://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+
+
+</head>
+<body>
+    <div id = "header">
+        <p id = "headerText">Fridge 2 Reciepe</p>
+    </div>
+    <div id="body">
+        <div>
+            <select id="time">
+                <option value="30 min">30_min</option>
+                <option value="1 hour">1_hour</option>
+                <option value="2 hour">2_hour</option>
+            </select>
+            <select id="r_choice">
+                <option value="highest_rated">highest_rated</option>
+                <option value="cheapest">cheapest</option>
+                <option value="healthiest">healthiest</option>
+            </select>
+            <button onclick="getLocation()">Acquire Location</button>
+            <input type="button" value="Search Reciepe" name="search R" onclick="fun1();">
+
+        </div>
+        <div id="upload">
+            <form method="put" enctype="multipart/form-data">
+                	<font color = "white" >Select image to upload: </font>
+                <input type="file" name="fileToUpload" id="fileToUpload">
+                <input type="button" value="Upload Image" name="submit" onclick="uploadPhoto();">
+            </form>
+        </div>
+        <div id="result">
+                <p id="result-text"></p>
+            <div id="images-output"></div>
+        </div>
+    </div>
+
+    <script src="main.js"></script>
+</body>
+</html>
